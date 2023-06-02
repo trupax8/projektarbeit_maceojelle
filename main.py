@@ -12,7 +12,11 @@ pygame.init()
 #color code in RGB form
 gray=(60,60,60)
 #color code in RGB form
-black=(255,0,0) 
+black=(255,0,0)
+
+green = (0, 128, 0)
+
+bright_green = (0, 255, 0)
 #set width & height of the display
 display=pygame.display.set_mode((830,600))
 #set name of the game window
@@ -157,6 +161,51 @@ def loop():
 
                         #restart the game
         pygame.display.update() 
-loop() # exiting from game
+
+#######################
+#######################
+#######################
+
+def text_objects(text, font):
+    textSurface = font.render(text, True, black)
+    return textSurface, textSurface.get_rect()
+
+def button(msg,x,y,w,h,ic,ac,action=None):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.event.get(pygame.MOUSEBUTTONDOWN)
+
+    if x+w > mouse[0] > x and y+h > mouse[1] > y:
+        pygame.draw.rect(display, ac,(x,y,w,h), 2) # draw an empty rectangle for border
+        if click:
+            if action != None:
+                action()   
+    else:
+        pygame.draw.rect(display, ic,(x,y,w,h), 2) # draw an empty rectangle for border
+
+    smallText = pygame.font.Font("freesansbold.ttf",20)
+    textSurf, textRect = text_objects(msg, smallText)
+    textRect.center = ( (x+(w/2)), (y+(h/2)) )
+    display.blit(textSurf, textRect)
+
+def game_intro():
+    intro = True
+
+    while intro:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        
+        large_text=pygame.font.Font("freesansbold.ttf",50) # decrease the font size
+        TextSurf, TextRect = text_objects("Race Game by Jelle & Maceo", large_text)
+        TextRect.center = ((display.get_width()/2),(display.get_height()/2))
+        display.blit(TextSurf, TextRect)
+
+        button("Start", display.get_width()/2 - 50, display.get_height()/2 + 100, 100, 50, green, bright_green, loop)
+
+        pygame.display.update()
+
+game_intro()
+loop() 
 pygame.quit() 
 quit()
