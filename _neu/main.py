@@ -26,21 +26,23 @@ def game():
     """
     Die Hauptfunktion des Spiels, die den Spielablauf steuert.
     """
-    game_state = ("menu", None)
+    game_state = ("menu_name", None)
     scores = load_scores()
+    player_name = ''
+    level = ''
 
     while True:
-        if game_state[0] == "menu":
+        if game_state[0] == "menu_name":
             game_state = start_menu()
-        elif game_state[0] == "play":
-            level = level_selection()
-            if level:
-                player_name = get_player_name()
-                if player_name:
-                    player_score = loop(scores, player_name, level)
-                    scores[player_name] = player_score
-                    save_scores(scores)
-                    game_state = ("scoreboard", None)
+            player_name = game_state[1]
+        elif game_state[0] == "menu_level":
+            game_state = level_selection()
+            level = game_state[1]
+        elif game_state[0] == "play":            
+            player_score = loop(scores, player_name, level)
+            scores[player_name] = player_score
+            save_scores(scores)
+            game_state = ("scoreboard", None)
         elif game_state[0] == "scoreboard":
             display_scoreboard(scores)
             game_state = ("menu", None)
@@ -87,7 +89,7 @@ def level_selection():
 
         pygame.display.update()
 
-    return level
+    return "play", level
 
 def start_menu():
     """
@@ -119,8 +121,8 @@ def start_menu():
 
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-        if 350 < mouse[0] < 450 and 280 < mouse[1] < 320 and click[0] == 1:
-            return "play", get_player_name()
+        if 350 < mouse[0] < 450 and 280 < mouse[1] < 320 and click[0] == 1:                           
+            return "menu_level", get_player_name()
         elif 325 < mouse[0] < 475 and 340 < mouse[1] < 380 and click[0] == 1:
             return "scoreboard", None
 
