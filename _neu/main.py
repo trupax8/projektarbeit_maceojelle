@@ -38,9 +38,9 @@ def game():
         elif game_state[0] == "menu_level":
             game_state = level_selection()
             level = game_state[1]
-        elif game_state[0] == "play":            
+        elif game_state[0] == "play":
             player_score = loop(scores, player_name, level)
-            scores[player_name] = player_score
+            scores[player_name] = {"score": player_score, "level": level}
             save_scores(scores)
             game_state = ("scoreboard", None)
         elif game_state[0] == "scoreboard":
