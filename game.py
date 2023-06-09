@@ -7,17 +7,13 @@ from crash import crash
 from text import text_object
 from background import background
 from score import score_display, highest_score_display, update_scores_and_get_rank
-from settings import gray
-from settings import display
-from settings import backgroundleft
-from settings import backgroundright
-from settings import carimg
+from settings import gray, backgroundleft, backgroundright, carimg, DISPLAY_HEIGHT, DISPLAY_WIDTH
 
 def game():
     pygame.init()
 
     pygame.display.set_caption("Racing Game Built with Python")
-
+    display = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
     car_width = 23
 
     game_state = ("menu", None)
@@ -31,7 +27,7 @@ def game():
             if level:
                 player_name = get_player_name(display)
                 if player_name:
-                    player_score = loop(display, scores, player_name, level, car_width, backgroundleft, backgroundright)
+                    player_score = loop(display, scores, player_name, level, car_width)
                     scores[player_name] = player_score
                     save_scores(scores)
                     game_state = ("scoreboard", None)
@@ -41,7 +37,7 @@ def game():
         elif game_state[0] == "exit":
             break
 
-def loop(display, scores, player_name, difficulty_level, car_width, backgroundleft, backgroundright):
+def loop(display, scores, player_name, difficulty_level, car_width):
     x = 400
     y = 540
     x_change = 0
@@ -92,14 +88,10 @@ def loop(display, scores, player_name, difficulty_level, car_width, backgroundle
             police = random.randrange(0, 2)
             score += 1
 
-        if y < police_starty + police_height:
-            if x > police_startx and x < police_startx + police_width or x + car_width > police_startx and x + car_width < police_startx + police_width:
-                player_rank = update_scores_and_get_rank(scores, player_name, score, difficulty_level)
-                return crash(score, player_rank, difficulty_level)
-
         score_display(score, display)
         pygame.display.update()
-    return crash(score, player_rank, difficulty_level)
+
+    return "score"
 
 def main():
     game()
