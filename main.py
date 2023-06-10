@@ -30,36 +30,23 @@ def game():
     player_name = ''
     level = ''
 
-    back_rect = None  # Initialize the back button rectangle
-
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-
-            if game_state[0] == "menu_name":
-                game_state = start_menu()
-                player_name = game_state[1]
-            elif game_state[0] == "menu_level":
-                game_state = level_selection()
-                level = game_state[1]
-            elif game_state[0] == "play":
-                player_score = loop(scores, player_name, level)
-                scores[player_name] = {"score": player_score, "level": level}
-                save_scores(scores)
-                game_state = ("scoreboard", None)
-            elif game_state[0] == "scoreboard":
-                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                    if back_rect and back_rect.collidepoint(event.pos):
-                        game_state = ("menu", None)
-            elif game_state[0] == "exit":
-                pygame.quit()
-                quit()
-
-        if game_state[0] == "scoreboard":
-            back_rect = display_scoreboard(scores)  # Get the "Zurück zum Menü" button rectangle
-
+        if game_state[0] == "menu_name":
+            game_state = start_menu()
+            player_name = game_state[1]
+        elif game_state[0] == "menu_level":
+            game_state = level_selection()
+            level = game_state[1]
+        elif game_state[0] == "play":
+            player_score = loop(scores, player_name, level)
+            scores[player_name] = {"score": player_score, "level": level}
+            save_scores(scores)
+            game_state = ("scoreboard", None)
+        elif game_state[0] == "scoreboard":
+            display_scoreboard(scores)
+            game_state = ("menu", None)
+        elif game_state[0] == "exit":
+            break
 
 def level_selection():
     """
@@ -220,17 +207,22 @@ def display_scoreboard(scores):
     sorted_scores = sorted(scores.items(), key=lambda x: x[1]['score'], reverse=True)
     small_text = pygame.font.Font("freesansbold.ttf", 20)
 
-    back_rect = None  # Initialize the back button rectangle
+    back_rect = None
+    
+    back_surf, back_rect = text_object("Back to Menu", small_text)
+    back_rect.center = (400, 500)
+    display.blit(back_surf, back_rect)
+
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+    if 350 < mouse[0] < 450 and 280 < mouse[1] < 320 and click[0] == 1:                           
+        return "menu"
 
     while scoreboard:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                mouse = pygame.mouse.get_pos()
-                if back_rect and back_rect.collidepoint(mouse):
-                    scoreboard = False
 
         display.fill(gray)
 
@@ -248,9 +240,6 @@ def display_scoreboard(scores):
             display.blit(score_surf, score_rect)
             y_offset += 40
 
-        # Draw the return to menu button
-        back_surf, back_rect = text_object("Back to Menu", small_text)
-        back_rect.center = (400, 500)
         display.blit(back_surf, back_rect)
 
         pygame.display.update()
