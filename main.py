@@ -43,7 +43,7 @@ def game():
         elif game_state[0] == "scoreboard":
             game_state = display_scoreboard(scores)
             if game_state[0] == "menu":
-                continue
+                game_state = ("menu_name", None)
         elif game_state[0] == "exit":
             break
 
