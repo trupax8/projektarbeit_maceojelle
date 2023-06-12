@@ -1,5 +1,3 @@
-# Code provided with the missing pygame.display.update() call added
-
 import pygame
 import random
 import json
@@ -27,8 +25,8 @@ def game():
     """
     game_state = ("menu_name", None)
     scores = load_scores()
-    player_name = ''
-    level = ''
+    player_name = ""
+    level = ""
 
     while True:
         if game_state[0] == "menu_name":
@@ -43,10 +41,16 @@ def game():
             save_scores(scores)
             game_state = ("scoreboard", None)
         elif game_state[0] == "scoreboard":
-            display_scoreboard(scores)
-            game_state = ("menu", None)
+            game_state = display_scoreboard(scores)
+            if game_state[0] == "menu":
+                continue
         elif game_state[0] == "exit":
             break
+
+        pygame.display.update()
+
+    pygame.quit()
+    quit()
 
 def level_selection():
     """
@@ -207,17 +211,6 @@ def display_scoreboard(scores):
     sorted_scores = sorted(scores.items(), key=lambda x: x[1]['score'], reverse=True)
     small_text = pygame.font.Font("freesansbold.ttf", 20)
 
-    back_rect = None
-    
-    back_surf, back_rect = text_object("Back to Menu", small_text)
-    back_rect.center = (400, 500)
-    display.blit(back_surf, back_rect)
-
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    if 350 < mouse[0] < 450 and 280 < mouse[1] < 320 and click[0] == 1:                           
-        return "menu"
-
     while scoreboard:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -227,7 +220,7 @@ def display_scoreboard(scores):
         display.fill(gray)
 
         large_text = pygame.font.Font("freesansbold.ttf", 40)
-        title_surf, title_rect = text_object("Scoreboard", large_text)
+        title_surf, title_rect = text_object("Bestenliste", large_text)
         title_rect.center = (400, 100)
         display.blit(title_surf, title_rect)
 
@@ -240,37 +233,37 @@ def display_scoreboard(scores):
             display.blit(score_surf, score_rect)
             y_offset += 40
 
+        back_surf, back_rect = text_object("Zurück zum Menü", small_text)
+        back_rect.center = (400, 500)
         display.blit(back_surf, back_rect)
+
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if 350 < mouse[0] < 450 and 480 < mouse[1] < 520 and click[0] == 1:
+            return "menu", None
 
         pygame.display.update()
 
-# Funktionen für das Auto und die Polizeiautos, die von der Gegenseite kommen
 def policecar(police_startx, police_starty, police):
     """
     Funktion zum Anzeigen der Polizeiautos, die von der Gegenseite kommen.
     """
     if police == 0:
-        # Polizeiauto Nr. 2
         police_come = pygame.image.load("car2.png")
     elif police == 1:
-        # Polizeiauto Nr. 3
         police_come = pygame.image.load("car3.png")
     elif police == 2:
-        # Polizeiauto Nr. 1
         police_come = pygame.image.load("car1.png")
-    # Zeige das Polizeiauto an
+    
     display.blit(police_come, (police_startx, police_starty))
 
 def background():
     """
     Funktion zum Anzeigen des Hintergrunds.
     """
-    # Position des Hintergrundbildes für die linke Seite in x- und y-Achse festlegen
     display.blit(backgroundleft, (0, 0))
-    # Position des Hintergrundbildes für die rechte Seite in x- und y-Achse festlegen
     display.blit(backgroundright, (700, 0))
 
-# Funktion zum Anzeigen der Game Over-Nachricht
 def crash(player_score, player_rank):
     """
     Funktion zum Anzeigen der Game Over-Nachricht.
@@ -278,7 +271,6 @@ def crash(player_score, player_rank):
     message_display("Game Over", player_rank)
     return player_score
 
-# Funktion zur Anpassung der Game Over-Nachricht
 def message_display(text, player_rank):
     """
     Funktion zur Anpassung der Game Over-Nachricht.
@@ -290,7 +282,6 @@ def message_display(text, player_rank):
                 pygame.quit()
                 quit()
         
-            # Event handling for restart button
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 mouse = pygame.mouse.get_pos()
                 if 350 < mouse[0] < 450 and 380 < mouse[1] < 420:
@@ -322,7 +313,6 @@ def message_display(text, player_rank):
 
         pygame.display.update()
 
-# Funktion zum Rendern von Text
 def text_object(text, font):
     """
     Funktion zum Rendern von Text.
@@ -332,23 +322,18 @@ def text_object(text, font):
     # Gebe die Oberfläche und das Rechteck des Textes zurück
     return text_surface, text_surface.get_rect()
 
-# Funktion zum Anzeigen des Autos
 def car(x, y):
     """
     Funktion zum Anzeigen des Autos.
     """
-    # Setze die Position des Autos
     display.blit(carimg, (x, y))
 
 def score_display(score):
     """
     Funktion zum Anzeigen der Punktzahl.
     """
-    # Schriftart und -größe für die Punktzahl festlegen
     font = pygame.font.Font("freesansbold.ttf", 20)
-    # Render den Text für die Punktzahl
     score_text = font.render(f"Punktzahl: {score}", True, black)
-    # Zeige den Text für die Punktzahl auf dem Bildschirm an
     display.blit(score_text, (700, 10))
 
 def update_scores_and_get_rank(scores, player_name, player_score, difficulty_level):
@@ -417,7 +402,7 @@ def loop(scores, player_name, difficulty_level):
 
         if x < 130 or x > 700 - car_width:
             player_rank = update_scores_and_get_rank(scores, player_name, score, difficulty_level)
-            score = crash(score, player_rank)  # Update the score
+            score = crash(score, player_rank)
             return score
 
         if police_starty > 600:
@@ -429,7 +414,7 @@ def loop(scores, player_name, difficulty_level):
         if y < police_starty + police_height:
             if x > police_startx and x < police_startx + police_width or x + car_width > police_startx and x + car_width < police_startx + police_width:
                 player_rank = update_scores_and_get_rank(scores, player_name, score, difficulty_level)
-                score = crash(score, player_rank)  # Update the score
+                score = crash(score, player_rank) 
                 return score
 
         score_display(score)
